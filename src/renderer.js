@@ -14,7 +14,7 @@ function initThree() {
   State.scene = new THREE.Scene();
 
   const { clientWidth: w, clientHeight: h } = wrap;
-  State.camera = new THREE.PerspectiveCamera(44, w / h, 0.1, 500);
+  State.camera = new THREE.PerspectiveCamera(44, w / h, 0.1, 100000);
   updateCameraPosition();
 
   // Lights
@@ -26,23 +26,12 @@ function initThree() {
   d2.position.set(-10, -5, -10);
   State.scene.add(d2);
 
-  // Axes
-  State.axesGroup = new THREE.Group();
-  const axisData = [
-    { dir: new THREE.Vector3(12, 0, 0),  color: 0xe06060 },
-    { dir: new THREE.Vector3(0, 12, 0),  color: 0x50c070 },
-    { dir: new THREE.Vector3(0, 0, 12),  color: 0x5080e0 },
-  ];
-  axisData.forEach(({ dir, color }) => {
-    const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), dir]);
-    const mat = new THREE.LineBasicMaterial({ color });
-    State.axesGroup.add(new THREE.Line(geo, mat));
-  });
+  // Infinite axes — rendered as a single LineSegments group
+  State.axesGroup = buildInfiniteAxes();
   State.scene.add(State.axesGroup);
 
-  // Grid
-  State.gridHelper = new THREE.GridHelper(18, 18, 0x2a2a28, 0x222220);
-  State.gridHelper.position.y = -0.01;
+  // Infinite grid — large plane with a grid pattern via shader material
+  State.gridHelper = buildInfiniteGrid();
   State.scene.add(State.gridHelper);
 
   // Resize observer
@@ -50,6 +39,40 @@ function initThree() {
   onResize();
 
   renderLoop();
+}
+
+function buildInfiniteAxes() {
+  const group = new THREE.Group();
+  const FAR = 50000;
+
+  const axisData = [
+    { points: [new THREE.Vector3(-FAR, 0, 0), new THREE.Vector3(FAR, 0, 0)], color: 0xcc4444 },
+    { points: [new THREE.Vector3(0, -FAR, 0), new THREE.Vector3(0, FAR, 0)], color: 0x44aa55 },
+    { points: [new THREE.Vector3(0, 0, -FAR), new THREE.Vector3(0, 0, FAR)], color: 0x4466cc },
+  ];
+
+  axisData.forEach(({ points, color }) => {
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    const mat = new THREE.LineBasicMaterial({ color, linewidth: 1.5 });
+    group.add(new THREE.Line(geo, mat));
+  });
+
+  return group;
+}
+
+function buildInfiniteGrid() {
+  // Large grid plane — big enough to appear infinite at any zoom
+  const SIZE = 100000;
+  const DIVISIONS = 500; // gives 200-unit grid spacing
+
+  // Use GridHelper but huge
+  const grid = new THREE.GridHelper(SIZE, DIVISIONS, 0xcccccc, 0xe0e0e0);
+  grid.position.y = -0.01;
+
+  // Fade grid lines far from centre using fog
+  State.scene.fog = new THREE.FogExp2(0xffffff, 0.00015);
+
+  return grid;
 }
 
 function onResize() {
@@ -71,8 +94,8 @@ function updateCameraPosition() {
 }
 
 function getBgColor() {
-  return document.documentElement.getAttribute('data-theme') === 'light'
-    ? 0xf4f3ef : 0x0f0f0e;
+  // Always white background
+  return 0xffffff;
 }
 
 function renderLoop() {
