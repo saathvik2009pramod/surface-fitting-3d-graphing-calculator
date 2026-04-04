@@ -36,7 +36,6 @@ function onMouseMove(e) {
   const dx = e.clientX - _lastMouse.x;
   const dy = e.clientY - _lastMouse.y;
   if (_button === 2) {
-    // Pan
     const right = new THREE.Vector3();
     right.crossVectors(
       State.camera.getWorldDirection(new THREE.Vector3()),
@@ -54,7 +53,7 @@ function onMouseMove(e) {
 
 function onWheel(e) {
   e.preventDefault();
-  State.camRadius = Math.max(3, Math.min(60, State.camRadius + e.deltaY * 0.025));
+  State.camRadius = Math.max(3, Math.min(60000, State.camRadius + e.deltaY * 0.025 * (State.camRadius / 20)));
   updateCameraPosition();
 }
 
@@ -85,42 +84,33 @@ function onTouchMove(e) {
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
-    State.camRadius = Math.max(3, Math.min(60, State.camRadius * (_touchDist / d)));
+    State.camRadius = Math.max(3, Math.min(60000, State.camRadius * (_touchDist / d)));
     _touchDist = d;
     updateCameraPosition();
   }
 }
 
 function autoScaleZoom() {
-  // Compute bounding box of all visible mesh vertices
-  if (Object.keys(State.graphMeshes).length === 0) {
-    resetCamera();
-    return;
-  }
-
+  if (Object.keys(State.graphMeshes).length === 0) { resetCamera(); return; }
   const box = new THREE.Box3();
   Object.values(State.graphMeshes).forEach(mesh => {
     mesh.geometry.computeBoundingBox();
-    const meshBox = mesh.geometry.boundingBox.clone();
-    meshBox.applyMatrix4(mesh.matrixWorld);
-    box.union(meshBox);
+    const mb = mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld);
+    box.union(mb);
   });
-
   const center = new THREE.Vector3();
   box.getCenter(center);
-  const size   = new THREE.Vector3();
+  const size = new THREE.Vector3();
   box.getSize(size);
-
-  // Fit radius so the whole surface is visible in the FOV
   const maxDim = Math.max(size.x, size.y, size.z);
   const fovRad = (State.camera.fov * Math.PI) / 180;
   const fitRadius = (maxDim / 2) / Math.tan(fovRad / 2) * 1.6;
-
   State.camTarget.copy(center);
   State.camRadius = Math.max(5, fitRadius);
   updateCameraPosition();
 }
 
+function resetCamera() {
   State.camTheta  = Math.PI / 4;
   State.camPhi    = Math.PI / 3.5;
   State.camRadius = 20;
