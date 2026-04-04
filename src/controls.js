@@ -16,6 +16,7 @@ function initControls() {
   canvas.addEventListener('touchend',   () => { _dragging = false; });
   canvas.addEventListener('contextmenu', e => e.preventDefault());
 
+  document.getElementById('btn-autoscale').addEventListener('click', autoScaleZoom);
   document.getElementById('btn-reset').addEventListener('click', resetCamera);
   document.getElementById('btn-topview').addEventListener('click', setTopView);
   document.getElementById('btn-screenshot').addEventListener('click', takeScreenshot);
@@ -90,7 +91,36 @@ function onTouchMove(e) {
   }
 }
 
-function resetCamera() {
+function autoScaleZoom() {
+  // Compute bounding box of all visible mesh vertices
+  if (Object.keys(State.graphMeshes).length === 0) {
+    resetCamera();
+    return;
+  }
+
+  const box = new THREE.Box3();
+  Object.values(State.graphMeshes).forEach(mesh => {
+    mesh.geometry.computeBoundingBox();
+    const meshBox = mesh.geometry.boundingBox.clone();
+    meshBox.applyMatrix4(mesh.matrixWorld);
+    box.union(meshBox);
+  });
+
+  const center = new THREE.Vector3();
+  box.getCenter(center);
+  const size   = new THREE.Vector3();
+  box.getSize(size);
+
+  // Fit radius so the whole surface is visible in the FOV
+  const maxDim = Math.max(size.x, size.y, size.z);
+  const fovRad = (State.camera.fov * Math.PI) / 180;
+  const fitRadius = (maxDim / 2) / Math.tan(fovRad / 2) * 1.6;
+
+  State.camTarget.copy(center);
+  State.camRadius = Math.max(5, fitRadius);
+  updateCameraPosition();
+}
+
   State.camTheta  = Math.PI / 4;
   State.camPhi    = Math.PI / 3.5;
   State.camRadius = 20;
