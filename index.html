@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="src/base.css" />
   <link rel="stylesheet" href="src/layout.css" />
   <link rel="stylesheet" href="src/components.css" />
+  <link rel="stylesheet" href="src/sculpt.css" />
 </head>
 <body>
 
@@ -58,6 +59,17 @@
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           Add function
+        </button>
+      </div>
+
+      <!-- Sculpt Your Shape -->
+      <div class="sidebar-section">
+        <button class="btn-sculpt-open" id="btn-open-sculptor">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M8 12h8M12 8v8"/>
+          </svg>
+          Sculpt Your Shape
         </button>
       </div>
 
@@ -186,7 +198,6 @@
       <div class="axis-badge z">Y</div>
     </div>
 
-    <!-- Analysis results printed near graph -->
     <div id="analysis-panel">
       <div class="analysis-title" id="analysis-title">Analysis Results</div>
       <div id="analysis-content"></div>
@@ -203,6 +214,48 @@
 
 <div id="color-picker-popup"></div>
 
+<!-- Sculptor overlay — inside body, before scripts -->
+<div id="sculpt-overlay" aria-modal="true" role="dialog" aria-label="Sculpt Your Shape">
+  <div id="sculpt-header">
+    <div>
+      <h2>Sculpt Your Shape</h2>
+      <p>Pick a shape, drag the sliders to resize it, then add it to your graph.</p>
+    </div>
+    <button id="btn-sculpt-close" aria-label="Close sculptor">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <div id="sculpt-body">
+    <div id="sculpt-left">
+      <div>
+        <div class="sculpt-section-label">Choose a Shape</div>
+        <div id="sculpt-shape-grid"></div>
+      </div>
+      <div>
+        <div class="sculpt-section-label">Adjust Dimensions</div>
+        <div id="sculpt-sliders"></div>
+      </div>
+      <div>
+        <div class="sculpt-section-label">Resulting Equation</div>
+        <div id="sculpt-equation-box"></div>
+      </div>
+      <button id="btn-sculpt-add">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Shape to Graph
+      </button>
+    </div>
+    <div id="sculpt-preview-wrap">
+      <canvas id="sculpt-canvas"></canvas>
+      <div id="sculpt-preview-hint">Drag to rotate</div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts: CDN libs first, then app modules, sculpt last -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.0/math.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="src/constants.js"></script>
@@ -213,6 +266,7 @@
 <script src="src/analysis.js"></script>
 <script src="src/ui.js"></script>
 <script src="src/theme.js"></script>
+<script src="src/sculpt.js"></script>
 <script src="src/main.js"></script>
 </body>
 </html>
