@@ -1,0 +1,208 @@
+/* sculpt.css — Sculpt Your Shape modal */
+
+#sculpt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+#sculpt-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Header ── */
+#sculpt-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+#sculpt-header h2 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  flex: 1;
+}
+#sculpt-header p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  max-width: none;
+}
+#btn-sculpt-close {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--color-text-muted);
+  transition: background var(--transition-interactive), color var(--transition-interactive);
+}
+#btn-sculpt-close:hover { background: var(--color-surface-offset); color: var(--color-text); }
+
+/* ── Body ── */
+#sculpt-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+}
+
+/* ── Left panel: shape picker + sliders ── */
+#sculpt-left {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+  padding: var(--space-5) var(--space-5);
+  gap: var(--space-5);
+}
+
+.sculpt-section-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+/* Shape picker grid */
+#sculpt-shape-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+.sculpt-shape-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--transition-interactive), background var(--transition-interactive), box-shadow var(--transition-interactive);
+}
+.sculpt-shape-btn svg { color: var(--color-text-muted); transition: color var(--transition-interactive); }
+.sculpt-shape-btn:hover { border-color: var(--color-primary); background: var(--color-primary-highlight); }
+.sculpt-shape-btn:hover svg { color: var(--color-primary); }
+.sculpt-shape-btn.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-highlight);
+  box-shadow: 0 0 0 3px oklch(from var(--color-primary) l c h / 0.15);
+}
+.sculpt-shape-btn.active svg { color: var(--color-primary); }
+
+/* Sliders */
+#sculpt-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.sculpt-param {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.sculpt-param-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.sculpt-param-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+.sculpt-param-value {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+.sculpt-param input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  height: 4px;
+}
+.sculpt-param-hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+/* Equation preview */
+#sculpt-equation-box {
+  background: var(--color-surface-offset);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  word-break: break-all;
+  line-height: 1.7;
+}
+#sculpt-equation-box .eq-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-1);
+}
+
+/* Add to Graph button */
+#btn-sculpt-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  transition: background var(--transition-interactive), box-shadow var(--transition-interactive);
+}
+#btn-sculpt-add:hover { background: var(--color-primary-hover); box-shadow: var(--shadow-md); }
+#btn-sculpt-add:active { background: var(--color-primary-active); }
+
+/* ── Right panel: 3D preview ── */
+#sculpt-preview-wrap {
+  flex: 1;
+  position: relative;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+#sculpt-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+#sculpt-preview-hint {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  pointer-events: none;
+}
